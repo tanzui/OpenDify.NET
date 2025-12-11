@@ -1,0 +1,16 @@
+services:
+  opendify-net:
+    build: .
+    container_name: Dockerfile
+    ports:
+      - "5003:5003"
+    environment:
+      # 服务器配置
+      - Server__Port=5003
+    restart: unless-stopped
+    networks:
+      - opendify-network
+
+networks:
+  opendify-network:
+    driver: bridge
