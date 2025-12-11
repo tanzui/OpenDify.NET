@@ -21,37 +21,35 @@
 
 ### 1. 配置环境
 
-复制 `.env` 文件并根据你的环境修改配置：
+编辑 `OpenDify.NET/appsettings.json` 文件，根据你的环境修改配置：
 
-```bash
-cp .env.example .env
+```json
+{
+  "Dify": {
+    "ApiBase": "http://192.168.0.117:8186/v1",
+    "ApiKeys": [
+      "app-OtfA94FWDwPw5YAmo8lj0kJ9"
+    ],
+    "ConversationMemoryMode": 1
+  },
+  "OpenAI": {
+    "ValidApiKeys": [
+      "sk-abc123",
+      "sk-def456"
+    ]
+  },
+  "Server": {
+    "Port": 5003
+  }
+}
 ```
 
-编辑 `.env` 文件：
-
-```env
-# Dify API Keys Configuration
-# Format: Comma-separated list of API keys
-DIFY_API_KEYS=app-OtfA94FWDwPw5YAmo8lj0kJ9
-
-# Dify API Base URL
-DIFY_API_BASE=http://192.168.0.117:8186/v1
-
-# 会话记忆功能模式
-# 1: 构造history_message附加到消息中的模式（默认）
-# 2: 当前的零宽字符模式
-CONVERSATION_MEMORY_MODE=1
-
-# Server Configuration
-SERVER_HOST=127.0.0.1
-SERVER_PORT=5003
-
-# OpenAI compatable API Keys
-VALID_API_KEYS=sk-abc123,sk-def456
-
-# Logging Configuration
-LOG_LEVEL=Information
-```
+**配置说明：**
+- `Dify.ApiBase`: Dify API 基础URL
+- `Dify.ApiKeys`: Dify API 密钥列表
+- `Dify.ConversationMemoryMode`: 会话记忆模式（1=history_message，2=zero_width_character）
+- `OpenAI.ValidApiKeys`: OpenAI 兼容 API 密钥列表
+- `Server.Port`: 服务器监听端口
 
 ### 2. 运行应用
 
@@ -63,21 +61,21 @@ dotnet run
 # 打开 OpenDify.NET.csproj 并运行
 ```
 
-应用将在 `http://127.0.0.1:5003` 启动。
+应用将在 `http://localhost:5003` 启动。
 
 ### 3. 测试 API
 
 #### 获取模型列表
 
 ```bash
-curl -X GET "http://127.0.0.1:5003/v1/models" \
+curl -X GET "http://localhost:5003/v1/models" \
   -H "Authorization: Bearer sk-abc123"
 ```
 
 #### 发送聊天请求
 
 ```bash
-curl -X POST "http://127.0.0.1:5003/v1/chat/completions" \
+curl -X POST "http://localhost:5003/v1/chat/completions" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer sk-abc123" \
   -d '{
@@ -94,7 +92,7 @@ curl -X POST "http://127.0.0.1:5003/v1/chat/completions" \
 #### 流式响应
 
 ```bash
-curl -X POST "http://127.0.0.1:5003/v1/chat/completions" \
+curl -X POST "http://localhost:5003/v1/chat/completions" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer sk-abc123" \
   -d '{
@@ -112,7 +110,7 @@ curl -X POST "http://127.0.0.1:5003/v1/chat/completions" \
 #### 图片上传
 
 ```bash
-curl -X POST "http://127.0.0.1:5003/v1/chat/completions" \
+curl -X POST "http://localhost:5003/v1/chat/completions" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer sk-abc123" \
   -d '{
@@ -140,7 +138,7 @@ curl -X POST "http://127.0.0.1:5003/v1/chat/completions" \
 #### 函数调用
 
 ```bash
-curl -X POST "http://127.0.0.1:5003/v1/chat/completions" \
+curl -X POST "http://localhost:5003/v1/chat/completions" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer sk-abc123" \
   -d '{
@@ -196,7 +194,7 @@ curl -X POST "http://127.0.0.1:5003/v1/chat/completions" \
   "Kestrel": {
     "Endpoints": {
       "Http": {
-        "Url": "http://127.0.0.1:5003"
+        "Url": "http://localhost:5003"
       }
     }
   },
@@ -214,28 +212,32 @@ curl -X POST "http://127.0.0.1:5003/v1/chat/completions" \
     ]
   },
   "Server": {
-    "Host": "127.0.0.1",
     "Port": 5003
   }
 }
 ```
+
+### 配置参数说明
+
+| 参数 | 描述 | 默认值 |
+|------|------|--------|
+| `Dify.ApiBase` | Dify API 基础URL | `http://192.168.0.117:8186/v1` |
+| `Dify.ApiKeys` | Dify API 密钥列表 | - |
+| `Dify.ConversationMemoryMode` | 会话记忆模式 | `1` |
+| `OpenAI.ValidApiKeys` | OpenAI 兼容 API 密钥列表 | - |
+| `Server.Port` | 服务器端口 | `5003` |
 
 ### 会话记忆模式
 
 1. **1 (history_message)** - 使用标准的对话历史记录模式（默认）
 2. **2 (zero_width_character)** - 使用零宽字符隐藏记忆信息
 
-### 环境变量
+### 环境特定配置
 
-| 变量名 | 描述 | 默认值 |
-|--------|------|--------|
-| `DIFY_API_KEYS` | Dify API 密钥列表（逗号分隔） | - |
-| `DIFY_API_BASE` | Dify API 基础URL | `http://192.168.0.117:8186/v1` |
-| `CONVERSATION_MEMORY_MODE` | 会话记忆模式（1=history_message，2=zero_width_character） | `1` |
-| `SERVER_HOST` | 服务器主机地址 | `127.0.0.1` |
-| `SERVER_PORT` | 服务器端口 | `5003` |
-| `VALID_API_KEYS` | OpenAI 兼容 API 密钥列表（逗号分隔） | - |
-| `LOG_LEVEL` | 日志级别 | `Information` |
+项目支持不同环境的配置文件：
+- `appsettings.json` - 基础配置
+- `appsettings.Development.json` - 开发环境配置
+- `appsettings.Production.json` - 生产环境配置
 
 ## 项目结构
 
@@ -259,7 +261,8 @@ OpenDify.NET/
 │   └── launchSettings.json
 ├── Program.cs              # 应用程序入口
 ├── appsettings.json        # 应用配置
-├── .env                    # 环境变量
+├── appsettings.Development.json  # 开发环境配置
+├── appsettings.Production.json   # 生产环境配置
 ├── OpenDify.NET.csproj     # 项目文件
 ├── MIGRATION_AND_CONTEXT.md # 迁移和上下文文档
 └── README.md               # 项目文档
@@ -311,22 +314,13 @@ docker run -d \
   -p 5003:5003 \
   opendify-net:latest
 
-# 带环境变量运行
-docker run -d \
-  --name opendify-net \
-  -p 5003:5003 \
-  -e DIFY_API_KEYS=your-dify-api-key \
-  -e DIFY_API_BASE=https://api.dify.ai/v1 \
-  -e VALID_API_KEYS=your-openai-api-key \
-  opendify-net:latest
-
 # 使用 Docker Compose（推荐）
 docker-compose up -d
 ```
 
 #### Docker Compose 配置
 
-创建 `docker-compose.yml` 文件：
+项目已包含 `docker-compose.yml` 文件，配置如下：
 
 ```yaml
 version: '3.8'
@@ -337,14 +331,6 @@ services:
     container_name: opendify-net
     ports:
       - "5003:5003"
-    environment:
-      - DIFY_API_KEYS=your-dify-api-key
-      - DIFY_API_BASE=https://api.dify.ai/v1
-      - CONVERSATION_MEMORY_MODE=1
-      - SERVER_HOST=0.0.0.0
-      - SERVER_PORT=5003
-      - VALID_API_KEYS=sk-abc123,sk-def456
-      - LOG_LEVEL=Information
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5003/health"]
@@ -354,14 +340,14 @@ services:
       start_period: 40s
 ```
 
-### 环境变量配置
+### 生产环境配置
 
-在生产环境中，建议使用环境变量或配置服务来管理敏感信息：
+在生产环境中，建议：
 
-1. **Docker 环境变量**：通过 `-e` 参数或 docker-compose.yml 设置
-2. **Kubernetes ConfigMap/Secret**：用于容器编排环境
-3. **Azure App Service Configuration**：用于云部署
-4. **环境特定配置文件**：appsettings.Production.json
+1. **使用配置文件**：修改 `appsettings.Production.json` 文件
+2. **容器编排环境**：使用 Kubernetes ConfigMap/Secret
+3. **云服务配置**：Azure App Service Configuration 等
+4. **环境变量**：可通过环境变量覆盖配置文件设置
 
 ## 许可证
 

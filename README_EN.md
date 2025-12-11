@@ -21,37 +21,35 @@ An OpenAI compatible Dify proxy server based on .NET 10, providing complete Open
 
 ### 1. Configure Environment
 
-Copy the `.env` file and modify it according to your environment:
+Edit the `OpenDify.NET/appsettings.json` file and modify it according to your environment:
 
-```bash
-cp .env.example .env
+```json
+{
+  "Dify": {
+    "ApiBase": "http://192.168.0.117:8186/v1",
+    "ApiKeys": [
+      "app-OtfA94FWDwPw5YAmo8lj0kJ9"
+    ],
+    "ConversationMemoryMode": 1
+  },
+  "OpenAI": {
+    "ValidApiKeys": [
+      "sk-abc123",
+      "sk-def456"
+    ]
+  },
+  "Server": {
+    "Port": 5003
+  }
+}
 ```
 
-Edit the `.env` file:
-
-```env
-# Dify API Keys Configuration
-# Format: Comma-separated list of API keys
-DIFY_API_KEYS=app-OtfA94FWDwPw5YAmo8lj0kJ9
-
-# Dify API Base URL
-DIFY_API_BASE=http://192.168.0.117:8186/v1
-
-# Conversation memory mode
-# 1: history_message mode (default)
-# 2: zero-width character mode
-CONVERSATION_MEMORY_MODE=1
-
-# Server Configuration
-SERVER_HOST=127.0.0.1
-SERVER_PORT=5003
-
-# OpenAI compatible API Keys
-VALID_API_KEYS=sk-abc123,sk-def456
-
-# Logging Configuration
-LOG_LEVEL=Information
-```
+**Configuration Description:**
+- `Dify.ApiBase`: Dify API base URL
+- `Dify.ApiKeys`: Dify API key list
+- `Dify.ConversationMemoryMode`: Conversation memory mode (1=history_message, 2=zero_width_character)
+- `OpenAI.ValidApiKeys`: OpenAI compatible API key list
+- `Server.Port`: Server listening port
 
 ### 2. Run the Application
 
@@ -63,21 +61,21 @@ dotnet run
 # Open OpenDify.NET.csproj and run
 ```
 
-The application will start at `http://127.0.0.1:5003`.
+The application will start at `http://localhost:5003`.
 
 ### 3. Test the API
 
 #### Get Model List
 
 ```bash
-curl -X GET "http://127.0.0.1:5003/v1/models" \
+curl -X GET "http://localhost:5003/v1/models" \
   -H "Authorization: Bearer sk-abc123"
 ```
 
 #### Send Chat Request
 
 ```bash
-curl -X POST "http://127.0.0.1:5003/v1/chat/completions" \
+curl -X POST "http://localhost:5003/v1/chat/completions" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer sk-abc123" \
   -d '{
@@ -94,7 +92,7 @@ curl -X POST "http://127.0.0.1:5003/v1/chat/completions" \
 #### Streaming Response
 
 ```bash
-curl -X POST "http://127.0.0.1:5003/v1/chat/completions" \
+curl -X POST "http://localhost:5003/v1/chat/completions" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer sk-abc123" \
   -d '{
@@ -112,7 +110,7 @@ curl -X POST "http://127.0.0.1:5003/v1/chat/completions" \
 #### Image Upload
 
 ```bash
-curl -X POST "http://127.0.0.1:5003/v1/chat/completions" \
+curl -X POST "http://localhost:5003/v1/chat/completions" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer sk-abc123" \
   -d '{
@@ -140,7 +138,7 @@ curl -X POST "http://127.0.0.1:5003/v1/chat/completions" \
 #### Function Call
 
 ```bash
-curl -X POST "http://127.0.0.1:5003/v1/chat/completions" \
+curl -X POST "http://localhost:5003/v1/chat/completions" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer sk-abc123" \
   -d '{
@@ -196,7 +194,7 @@ curl -X POST "http://127.0.0.1:5003/v1/chat/completions" \
   "Kestrel": {
     "Endpoints": {
       "Http": {
-        "Url": "http://127.0.0.1:5003"
+        "Url": "http://localhost:5003"
       }
     }
   },
@@ -214,28 +212,32 @@ curl -X POST "http://127.0.0.1:5003/v1/chat/completions" \
     ]
   },
   "Server": {
-    "Host": "127.0.0.1",
     "Port": 5003
   }
 }
 ```
+
+### Configuration Parameters
+
+| Parameter | Description | Default Value |
+|-----------|-------------|---------------|
+| `Dify.ApiBase` | Dify API base URL | `http://192.168.0.117:8186/v1` |
+| `Dify.ApiKeys` | Dify API key list | - |
+| `Dify.ConversationMemoryMode` | Conversation memory mode | `1` |
+| `OpenAI.ValidApiKeys` | OpenAI compatible API key list | - |
+| `Server.Port` | Server port | `5003` |
 
 ### Conversation Memory Modes
 
 1. **1 (history_message)** - Use standard conversation history mode (default)
 2. **2 (zero_width_character)** - Use zero-width character to hide memory information
 
-### Environment Variables
+### Environment-Specific Configuration
 
-| Variable Name | Description | Default Value |
-|---------------|-------------|---------------|
-| `DIFY_API_KEYS` | Dify API key list (comma-separated) | - |
-| `DIFY_API_BASE` | Dify API base URL | `http://192.168.0.117:8186/v1` |
-| `CONVERSATION_MEMORY_MODE` | Conversation memory mode (1=history_message, 2=zero_width_character) | `1` |
-| `SERVER_HOST` | Server host address | `127.0.0.1` |
-| `SERVER_PORT` | Server port | `5003` |
-| `VALID_API_KEYS` | OpenAI compatible API key list (comma-separated) | - |
-| `LOG_LEVEL` | Log level | `Information` |
+The project supports different environment configuration files:
+- `appsettings.json` - Base configuration
+- `appsettings.Development.json` - Development environment configuration
+- `appsettings.Production.json` - Production environment configuration
 
 ## Project Structure
 
@@ -259,7 +261,8 @@ OpenDify.NET/
 │   └── launchSettings.json
 ├── Program.cs              # Application entry point
 ├── appsettings.json        # Application configuration
-├── .env                    # Environment variables
+├── appsettings.Development.json  # Development environment configuration
+├── appsettings.Production.json   # Production environment configuration
 ├── OpenDify.NET.csproj     # Project file
 ├── MIGRATION_AND_CONTEXT.md # Migration and context documentation
 └── README.md               # Project documentation
@@ -311,22 +314,13 @@ docker run -d \
   -p 5003:5003 \
   opendify-net:latest
 
-# Run with environment variables
-docker run -d \
-  --name opendify-net \
-  -p 5003:5003 \
-  -e DIFY_API_KEYS=your-dify-api-key \
-  -e DIFY_API_BASE=https://api.dify.ai/v1 \
-  -e VALID_API_KEYS=your-openai-api-key \
-  opendify-net:latest
-
 # Use Docker Compose (recommended)
 docker-compose up -d
 ```
 
 #### Docker Compose Configuration
 
-Create `docker-compose.yml` file:
+The project includes a `docker-compose.yml` file with the following configuration:
 
 ```yaml
 version: '3.8'
@@ -337,14 +331,6 @@ services:
     container_name: opendify-net
     ports:
       - "5003:5003"
-    environment:
-      - DIFY_API_KEYS=your-dify-api-key
-      - DIFY_API_BASE=https://api.dify.ai/v1
-      - CONVERSATION_MEMORY_MODE=1
-      - SERVER_HOST=0.0.0.0
-      - SERVER_PORT=5003
-      - VALID_API_KEYS=sk-abc123,sk-def456
-      - LOG_LEVEL=Information
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5003/health"]
@@ -354,14 +340,14 @@ services:
       start_period: 40s
 ```
 
-### Environment Variable Configuration
+### Production Environment Configuration
 
-In production environments, it is recommended to use environment variables or configuration services to manage sensitive information:
+In production environments, it is recommended to:
 
-1. **Docker Environment Variables**: Set via `-e` parameters or docker-compose.yml
-2. **Kubernetes ConfigMap/Secret**: For container orchestration environments
-3. **Azure App Service Configuration**: For cloud deployment
-4. **Environment-specific Configuration Files**: appsettings.Production.json
+1. **Use Configuration Files**: Modify `appsettings.Production.json`
+2. **Container Orchestration**: Use Kubernetes ConfigMap/Secret
+3. **Cloud Service Configuration**: Azure App Service Configuration, etc.
+4. **Environment Variables**: Override configuration file settings via environment variables
 
 ## License
 
